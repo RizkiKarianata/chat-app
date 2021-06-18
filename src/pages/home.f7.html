@@ -1,0 +1,97 @@
+<template>
+	<div class="page color-theme-deeppurple">
+		<div class="page-content login-screen-content">
+			<div class="login-screen-title">KChat</div>
+			<div class="list">
+				<ul>
+					<li class="item-content item-input">
+						<div class="item-inner">
+							<div class="item-title item-label">Email</div>
+							<div class="item-input-wrap">
+								<input type="email" name="email" id="email-1" placeholder="Your Email" autocomplete="off">
+							</div>
+						</div>
+					</li>
+					<li class="item-content item-input">
+						<div class="item-inner">
+							<div class="item-title item-label">Password</div>
+							<div class="item-input-wrap">
+								<input type="password" name="password" id="password-1" placeholder="Your Password" autocomplete="off">
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="block">
+				<p class="row">
+					<button class="col button button-raised button-fill button-round" @click="login">Login</button>
+				</p>
+			</div>
+			<div class="list">
+				<div class="block-footer">
+					<p>Don't have an account yet? <a class="link" href="/register/">click here</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	export default {
+		mounted() {
+			var $this = this;
+			var app = this.$app;
+			var $$ = this.$$;
+			var self = this;
+		},
+		methods: {
+			login: function() {
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				var self = this;
+				var email = $$('#email-1').val();
+				var password = $$('#password-1').val();
+
+				if(email == "" || email == null) {
+					app.dialog.alert('Please fill in your email address');
+				}else if(password == "" || password == null) {
+					app.dialog.alert('Please fill in your password');
+				}else {
+					firebase.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
+						var user = userCredential.user;
+						console.log(userCredential);
+
+						localStorage.setItem('name', email.replace("@gmail.com", ""));
+						localStorage.setItem('status', 'login');
+
+						app.dialog.progress("Please be patient");
+						setTimeout(function () {
+							app.dialog.close();
+							app.views.main.router.navigate('/chat/');
+						}, 3500);
+					}).catch((error) => {
+						var errorCode = error.code;
+						var errorMessage = error.message;
+						console.log(error);
+						app.dialog.alert(errorMessage)
+					});
+				}
+			},
+		},
+		on: {
+			pageInit: function () {
+				var self = this;
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				if(localStorage.getItem('status')) {
+					app.dialog.progress("Welcome back, "+localStorage.getItem('name'));
+					setTimeout(function () {
+						app.dialog.close();
+						app.views.main.router.navigate('/chat/');
+					}, 3500);
+				}
+			},
+		},
+	}
+</script>

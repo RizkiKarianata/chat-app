@@ -1,0 +1,117 @@
+<template>
+	<div class="page color-theme-deeppurple">
+		<div class="navbar color-theme-deeppurple">
+			<div class="navbar-bg" style="background: #673ab7;"></div>
+			<div class="navbar-inner sliding">
+				<div class="left">
+					<a href="#" class="link" style="color: #fff;" @click="logout">
+						<i class="f7-icons">square_arrow_left</i>
+					</a>
+				</div>
+				<div class="title" style="color: #fff;">KChat</div>
+			</div>
+		</div>
+		<div class="toolbar messagebar">
+			<div class="toolbar-inner">
+				<div class="messagebar-area">
+					<textarea class="resizable" id="message" name="message" placeholder="Message"></textarea>
+				</div><a class="link send-link" href="#" @click="send">Send</a>
+			</div>
+		</div>
+		<div class="page-content messages-content">
+			<div class="messages" id="messages"></div>
+		</div>
+	</div>
+</template>
+<script>
+	export default{
+		methods: {
+			logout: function() {
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				var self = this;
+				firebase.auth().signOut().then(() => {
+					localStorage.removeItem('name');
+					localStorage.removeItem('status');
+					app.views.main.router.navigate('/');
+				}).catch((error) => {
+					app.dialog.alert('Failed to exit')
+				});
+			},
+			send: function() {
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				var self = this;
+
+				var now = new Date();
+				var day = ("0" + now.getDate()).slice(-2);
+				var month = ("0" + (now.getMonth() + 1)).slice(-2);
+				var today = now.getFullYear()+"-"+(month)+"-"+(day)+" "+now.getHours()+":"+now.getMinutes();
+
+				var name = localStorage.getItem('name');
+				var message = $$('#message').val();
+				var timestamp = Date.now();
+
+				if(message == "" || message == null) {
+					app.dialog.alert('Please fill in the message')
+				}else {
+					db.ref("messages/" + timestamp).set({
+						name: name,
+						message: message,
+						created: today,
+					});
+					$$('#message').val("");
+				}
+			},
+		},
+		on: {
+			pageInit: function () {
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				var self = this;
+
+				var name = localStorage.getItem('name');
+
+				var arrayGambar = ["avatar-2.png", "avatar-3.png", "avatar-4.png", "avatar-5.png"];
+
+				const fetchChat = db.ref("messages/");
+				fetchChat.on("child_added", function (snapshot) {
+					const messages = snapshot.val();
+					if(messages.name === name) {
+						var msg = '<div class="message message-sent"><div class="message-avatar" style="background-image:url(static/images/avatar-1.png);"></div><div class="message-content"><div class="message-name">'+messages.name+'</div><div class="message-bubble"><div class="message-text-header">'+messages.created+'</div><div class="message-text">'+messages.message+'</div></div></div></div>';
+					}else {
+						var randomItem = arrayGambar[Math.floor(Math.random()*arrayGambar.length)];
+						var msg = '<div class="message message-received"><div class="message-avatar" style="background-image:url(static/images/'+randomItem+');"></div><div class="message-content"><div class="message-name">'+messages.name+'</div><div class="message-bubble"><div class="message-text-header">'+messages.created+'</div><div class="message-text">'+messages.message+'</div></div></div></div>';
+					}
+					document.getElementById("messages").innerHTML += msg;
+				});
+
+				var messages = app.messages.create({
+					el: '.messages',
+					firstMessageRule: function (message, previousMessage, nextMessage) {
+						if (message.isTitle) return false;
+						if (!previousMessage || previousMessage.type !== message.type || previousMessage.name !== message.name) return true;
+						return false;
+					},
+					lastMessageRule: function (message, previousMessage, nextMessage) {
+						if (message.isTitle) return false;
+						if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true;
+						return false;
+					},
+					tailMessageRule: function (message, previousMessage, nextMessage) {
+						if (message.isTitle) return false;
+						if (!nextMessage || nextMessage.type !== message.type || nextMessage.name !== message.name) return true;
+						return false;
+					}
+				});
+
+				var messagebar = app.messagebar.create({
+					el: '.messagebar'
+				});
+			}
+		},
+	}
+</script>

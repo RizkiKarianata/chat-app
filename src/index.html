@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+	<meta name="theme-color" content="#007aff">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="msapplication-tap-highlight" content="no">
+	<title>KChat</title>
+	<% if (process.env.TARGET === 'web') { %>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<link rel="apple-touch-icon" href="static/icons/apple-touch-icon.png">
+	<link rel="icon" href="static/icons/favicon.png">
+	<% } %>
+</head>
+<body class="color-theme-deeppurple">
+	<div id="app"></div>
+	<% if (process.env.TARGET === 'cordova') { %>
+	<script src="cordova.js"></script>
+	<% } %>
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-analytics.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-database.js"></script>
+	<script type="text/javascript">
+		var firebaseConfig = {
+			apiKey: "AIzaSyAzAv71If9u01jKw1YMY1Ig6FexleO5Q1I",
+			authDomain: "kchat-cb4fe.firebaseapp.com",
+			projectId: "kchat-cb4fe",
+			storageBucket: "kchat-cb4fe.appspot.com",
+			messagingSenderId: "702452225837",
+			appId: "1:702452225837:web:379e9f8580aee9afe4e5a4",
+			measurementId: "G-13571LQ6D2"
+		};
+		firebase.initializeApp(firebaseConfig);
+		firebase.analytics();
+		const db = firebase.database();
+	</script>
+</body>
+</html>
